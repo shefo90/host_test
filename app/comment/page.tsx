@@ -1,45 +1,40 @@
-"use client";
-
-import axios from "axios";
 import { useEffect, useState } from "react";
+import axios from "axios";
+
+interface Comment {
+  username: string;
+  text: string;
+  createdAt: string;
+}
 
 export default function COmment_data() {
   const [username, setUsername] = useState("");
   const [text, setText] = useState("");
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<Comment[]>([]); // ← typed here
 
-  // POST comment
   const handelSubmit = async () => {
     try {
       await axios.post("/api/comments", { username, text });
-
-      // clear inputs
       setUsername("");
       setText("");
+      fetchComments();
     } catch (error) {
       console.log(error);
     }
   };
 
-  // GET comments
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/comments");
-      setComments(res.data.text); // matches your API response
+      setComments(res.data.text); // should match API response
     } catch (error) {
       console.log(error);
     }
   };
 
-  // fetch on page load + poll every 5 seconds
   useEffect(() => {
-    fetchComments(); // initial fetch
-
-    const interval = setInterval(() => {
-      fetchComments();
-    }, 5000); // fetch every 5 seconds
-
-    // cleanup interval on unmount
+    fetchComments();
+    const interval = setInterval(fetchComments, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -74,8 +69,8 @@ export default function COmment_data() {
       {comments.map((c, i) => (
         <div key={i}>
           <strong>username : {c.username}</strong>
-          <p> comment : {c.text}</p>
-          <small> Date : {new Date(c.createdAt).toLocaleString()}</small>
+          <p>comment : {c.text}</p>
+          <small>Date : {new Date(c.createdAt).toLocaleString()}</small>
           <hr />
         </div>
       ))}
