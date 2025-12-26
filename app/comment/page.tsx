@@ -12,7 +12,7 @@ interface Comment {
 export default function COmment_data() {
   const [username, setUsername] = useState("");
   const [text, setText] = useState("");
-  const [comments, setComments] = useState<Comment[]>([]); // ← typed here
+  const [comments, setComments] = useState<Comment[]>([]);
 
   const handelSubmit = async () => {
     try {
@@ -28,15 +28,17 @@ export default function COmment_data() {
   const fetchComments = async () => {
     try {
       const res = await axios.get("/api/comments");
-      setComments(res.data.text); // should match API response
+      // Ensure comments is always an array
+      setComments(res.data.comments || []);
     } catch (error) {
       console.log(error);
+      setComments([]); // fallback
     }
   };
 
   useEffect(() => {
     fetchComments();
-    const interval = setInterval(fetchComments, 5000);
+    const interval = setInterval(fetchComments, 5000); // fetch every 5s
     return () => clearInterval(interval);
   }, []);
 
@@ -70,9 +72,9 @@ export default function COmment_data() {
 
       {comments.map((c, i) => (
         <div key={i}>
-          <strong>username : {c.username}</strong>
-          <p>comment : {c.text}</p>
-          <small>Date : {new Date(c.createdAt).toLocaleString()}</small>
+          <strong>username: {c.username}</strong>
+          <p>comment: {c.text}</p>
+          <small>Date: {new Date(c.createdAt).toLocaleString()}</small>
           <hr />
         </div>
       ))}

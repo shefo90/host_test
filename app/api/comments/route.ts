@@ -1,28 +1,39 @@
-import connect from "@/app/lib/db"
+import connect from "@/app/lib/db";
 import Comment from "@/app/lib/modals/comments";
 import { NextResponse } from "next/server";
 
+// GET comments
+export const GET = async () => {
+  try {
+    await connect();
+    const comments = await Comment.find().select("text username createdAt -_id");
+    return NextResponse.json({ comments }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "Failed to get comments" }, { status: 500 });
+  }
+};
 
-// geting comment data
-export const GET = async () =>{
-    try{
-        await connect();
-        const text = await Comment.find().select('text username createdAt -_id')
-        return NextResponse.json({text:text},{status:200})
-    }catch{
-        return NextResponse.json({massge:"failed to get the commnet "},{status:400})
-    }
-}
+// POST comment
+export const POST = async (request: Request) => {
+  try {
+    const body = await request.json();
 
-// posting new comment
-export const POST = async(requst:Request) =>{
-    try{
-        const body = await requst.json()
-        await connect();
-        const commment = new Comment(body)
-        await commment.save()
-        return NextResponse.json({massge:"comment posted succsfully"},{status:200})
-    }catch{
-        return NextResponse.json({massge:"failed to post comment"},{status:400})
+    // Validation
+    if (!body.username || !body.text) {
+      return NextResponse.json(
+        { message: "username and text are required" },
+        { status: 400 }
+      );
     }
-}
+
+    await connect();
+    const comment = new Comment(body);
+    await comment.save();
+
+    return NextResponse.json({ message: "Comment posted successfully" }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ message: "Failed to post comment" }, { status: 500 });
+  }
+};
