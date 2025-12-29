@@ -11,8 +11,7 @@ export const GET = async () =>{
         return NextResponse.json({massge:"requst error"},{status:400})
     }
 }
-
-
+// this is the post api for comments
 export const POST = async (requst:Request) =>{
     try{
         const body = await requst.json();
