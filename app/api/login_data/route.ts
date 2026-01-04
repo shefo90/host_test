@@ -2,6 +2,7 @@ import connect from "@/app/lib/db"
 import User from "@/app/lib/modals/user"
 import { NextResponse } from "next/server"
 
+// this is the get api for the comments
 export const GET = async () =>{
     try{
         await connect();
